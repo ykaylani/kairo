@@ -1,4 +1,4 @@
-# kairo-flt
+# kairo
 
 Kairo - BLE Moisture Sensor
 
