@@ -29,7 +29,7 @@ kairo/
 
 Every physical sensor advertises the **same** BLE Service UUID — that identifies the *protocol*, not the individual unit, the same way every USB flash drive reports the same USB storage class regardless of which drive it is. The app tells sensors apart by each one's own BLE hardware address instead, so any number of sensors can be scanned, connected to, and tracked at once.
 
-| | UUID |
+| Characteristic | UUID |
 |---|---|
 | Service | `ad45ddb6-3376-494a-8b34-b514ba2e9eaa` |
 | Write characteristic (config, phone → sensor) | `860c22f1-60a3-411e-b575-c0ecd08cef5d` |
