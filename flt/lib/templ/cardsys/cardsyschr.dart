@@ -21,16 +21,32 @@ class MoistureChart extends StatelessWidget {
     }
 
     final sortedHistory = List<MoistureEvent>.from(history)..sort((a, b) => a.time.compareTo(b.time));
-
     final now = DateTime.now();
+
     final spots = sortedHistory.map((event) {
       final hoursAgo = double.parse((event.time.difference(now).inMinutes / 60.0).toStringAsFixed(1));
       return FlSpot(hoursAgo, event.moisture);
     }).toList();
 
+    final double calculatedMinX = spots.isEmpty ? -4.0 : spots.first.x;
+    final double range = calculatedMinX.abs();
+
+    double dynamicInterval;
+    if (range > 720) {
+      dynamicInterval = 240.0;
+    } else if (range > 168) {
+      dynamicInterval = 120.0;
+    } else if (range > 48) {
+      dynamicInterval = 48.0;
+    } else if (range > 12) {
+      dynamicInterval = 6.0;
+    } else {
+      dynamicInterval = 1.0;
+    }
+
     return LineChart(
       LineChartData(
-        minX: -4.0,
+        minX: calculatedMinX,
         maxX: 0.0,
         minY: 0.0,
         maxY: 100.0,
@@ -57,21 +73,22 @@ class MoistureChart extends StatelessWidget {
             sideTitles: SideTitles(
               showTitles: true,
               reservedSize: 30,
-              interval: 1,
+              interval: dynamicInterval,
               getTitlesWidget: (value, meta) {
-                if (value != value.roundToDouble()) {
-                  return const SizedBox.shrink();
-                }
-
                 if (value == 0) {
                   return const Padding(
                     padding: EdgeInsets.only(top: 8.0),
                     child: Text('Now', style: TextStyle(fontSize: 10, color: ColorsMain.textOnGradSecondary)),
                   );
                 }
+
+                final hours = value.abs().round();
+                final days = hours ~/ 24;
+                final String label = days > 0 ? '${days}d' : '${hours}h';
+
                 return Padding(
-                  padding: const EdgeInsets.only(top: 8.0),
-                  child: Text('${value.abs().toInt()}h', style: const TextStyle(fontSize: 10, color: ColorsMain.textOnGradSecondary)),
+                  padding: EdgeInsets.only(top: 8.0),
+                  child: Text(label, style: const TextStyle(fontSize: 10, color: ColorsMain.textOnGradSecondary)),
                 );
               },
             ),
@@ -93,25 +110,17 @@ class MoistureChart extends StatelessWidget {
           LineChartBarData(
             spots: spots,
             isCurved: true,
+            preventCurveOverShooting: true,
             color: ColorsMain.secondary,
-            barWidth: 5, // Increased from 3
+            barWidth: 3,
             isStrokeCapRound: true,
             dotData: const FlDotData(show: true),
-
-            // Add a shadow to create depth against the background
-            shadow: const Shadow(
-              color: Colors.black45,
-              blurRadius: 4,
-              offset: Offset(0, 2),
-            ),
-
             belowBarData: BarAreaData(
               show: true,
-              color: ColorsMain.secondary.withOpacity(0.3), // Slightly more opaque
+              color: ColorsMain.secondary.withOpacity(0.2),
             ),
           ),
         ],
-
       ),
     );
   }
