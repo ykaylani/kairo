@@ -2,4 +2,4 @@
 
 Kairo - BLE Moisture Sensor
 
-Flutter Application
+Flutter Application / ESP32 Firmware
